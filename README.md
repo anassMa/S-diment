@@ -1,6 +1,6 @@
-# Sediment
+# Sédiment
 
-Le logiciel Sediment permet de faire de l'analyse granulométrique. Il a été dévelopé en Java.
+Le logiciel Sédiment permet de faire de l'analyse granulométrique. Il a été dévelopé en Java.
 
 ## Getting Started
 
