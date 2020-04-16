@@ -206,7 +206,7 @@ public class SampleController implements Initializable{
             		  latitude.getText().isEmpty() || longitude.getText().isEmpty() || DatePrel.getValue()== null ){
             	  Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
-			    	alert.setContentText("Il faut remplir tous les champs !");
+			    	alert.setContentText("Il faut remplir tous les champs ! ");
 			    	alert.showAndWait();
               }
               else if( !Pattern.matches("[a-zA-Z]+\\s*[a-zA-Z]*",auteur.getText() )){
