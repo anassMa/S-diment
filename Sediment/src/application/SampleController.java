@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
@@ -121,16 +122,16 @@ public class SampleController implements Initializable{
 
 	    private String firstPath1;
 
+	    private String firstPath2;
+
 	     double mediane ;
 
 	     double quartileInff ;
 
          double quatileSup ;
 
-	    String nameFile ;
+	    String nameFile ,nameFile1 , nameFile2;
 
-	    String nameFile1 , d
-	    ;
 	    Sediment sed ;
 
 
@@ -167,7 +168,7 @@ public class SampleController implements Initializable{
 
 	    }
 	    @FXML
-	    private void charger(ActionEvent event) {
+	    private void charger(ActionEvent event) throws IOException {
 		       FileChooser fc = new FileChooser();
 		       if (firstPath1 != null) {
 		           File path = new File(firstPath1);
@@ -184,13 +185,19 @@ public class SampleController implements Initializable{
 		           if (len == -1) {
 		               len = path.lastIndexOf("\\");
 		        }
-			     firstPath = path.substring(0, len);
+			     firstPath1 = path.substring(0, len);
 			     File file = new File(f.getAbsolutePath().replace('\\', '/'));
 			     nameFile1 = file.getName();
-	  }
-
+	            }
+		        if(! verifierFormat(ch.getText())){
+                	Alert alert = new Alert(AlertType.WARNING);
+		    		alert.setHeaderText(null);
+			    	alert.setContentText("la format de fichier n'est pas OK  !\n");
+			    	alert.showAndWait();
+                }
+		        else{
 		        lire(ch.getText());
-
+		        }
 		    }
 
 	    @FXML
@@ -202,8 +209,65 @@ public class SampleController implements Initializable{
 			    	alert.setContentText("Il faut remplir tous les champs !");
 			    	alert.showAndWait();
               }
+              else if( !Pattern.matches("[a-zA-Z]+\\s*[a-zA-Z]*",auteur.getText() )){
+            	  Alert alert = new Alert(AlertType.WARNING);
+		    		alert.setHeaderText(null);
+			    	alert.setContentText("Le champ  Auteur doit être une chaine de caractères alphabétiques  !!!");
+			    	alert.showAndWait();
+              }
+              else if( !Pattern.matches("\\d+",echantillon.getText() )){
+            	  Alert alert = new Alert(AlertType.WARNING);
+		    		alert.setHeaderText(null);
+			    	alert.setContentText("Le champ  Numéro d'échantillon doit être un entier  !!!");
+			    	alert.showAndWait();
+              }
+              else if( !Pattern.matches("\\d+",distance.getText() )){
+            	  Alert alert = new Alert(AlertType.WARNING);
+		    		alert.setHeaderText(null);
+			    	alert.setContentText("Le champ  Distance doit être un entier  !!!");
+			    	alert.showAndWait();
+              }
+              else if( !Pattern.matches("\\d+",profil.getText() )){
+            	  Alert alert = new Alert(AlertType.WARNING);
+		    		alert.setHeaderText(null);
+			    	alert.setContentText("Le champ  Numéro de profil doit être un entier  !!!");
+			    	alert.showAndWait();
+              }
+              else if( !Pattern.matches("(-)?\\d+.\\d+",latitude.getText() )){
+            	  Alert alert = new Alert(AlertType.WARNING);
+		    		alert.setHeaderText(null);
+			    	alert.setContentText("Le champ  Latitude doit être de type double !!!");
+			    	alert.showAndWait();
+              }
+              else if( !Pattern.matches("(-)?\\d+.\\d+",longitude.getText() )){
+            	  Alert alert = new Alert(AlertType.WARNING);
+		    		alert.setHeaderText(null);
+			    	alert.setContentText("Le champ  Longitude doit être de type double !!!");
+			    	alert.showAndWait();
+              }
               else {
             	  replacement(ch.getText());
+            	  FileChooser fc = new FileChooser();
+   		          if (firstPath2 != null) {
+   		           File path = new File(firstPath2);
+   		           fc.initialDirectoryProperty().set(path);
+   		       }
+            	  FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+                  fc.getExtensionFilters().add(extFilter);
+
+                  File f = fc.showSaveDialog(null);
+
+                  if (f != null) {
+                	  replacement(f.getAbsolutePath());
+                	  String path = f.getPath();
+   		           int len = path.lastIndexOf("/"); //no detec return -1
+   		           if (len == -1) {
+   		               len = path.lastIndexOf("\\");
+   		           		}
+   			     firstPath2 = path.substring(0, len);
+   			     File file = new File(f.getAbsolutePath().replace('\\', '/'));
+   			     nameFile2 = file.getName();
+                  }
             	  Alert alert = new Alert(AlertType.INFORMATION);
 		  	    	alert.setTitle("Information");
 		  	    	alert.setHeaderText(null);
@@ -212,34 +276,7 @@ public class SampleController implements Initializable{
               }
 
 	  }
-	    @FXML
-	    private void EnregistrerSous(ActionEvent event) throws IOException{
-              if(auteur.getText().isEmpty() || echantillon.getText().isEmpty() || distance.getText().isEmpty() || profil.getText().isEmpty()  ||
-            		  latitude.getText().isEmpty() || longitude.getText().isEmpty() || DatePrel.getValue()== null ){
-            	  Alert alert = new Alert(AlertType.WARNING);
-		    		alert.setHeaderText(null);
-			    	alert.setContentText("Il faut remplir tous les champs !");
-			    	alert.showAndWait();
-              }
-              else {
-            	  FileChooser fileChooser = new FileChooser();
 
-                  FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
-                  fileChooser.getExtensionFilters().add(extFilter);
-
-                  File f = fileChooser.showSaveDialog(null);
-
-                  if (f != null) {
-                	  replacement(f.getAbsolutePath());
-                  }
-
-            	  Alert alert = new Alert(AlertType.INFORMATION);
-		  	    	alert.setTitle("Information");
-		  	    	alert.setHeaderText(null);
-		  	    	alert.setContentText("Les informations ont été bien enregistrées  dans le fichier !");
-		  	    	alert.showAndWait();
-              }
-	    }
 	    public void replacement(String txt ) throws IOException {
 	    	FileWriter fw = new FileWriter(txt);
 	    	   BufferedWriter bw = new BufferedWriter(fw);
@@ -686,7 +723,63 @@ public class SampleController implements Initializable{
 
 	    }
 
+	    public  boolean verifierFormat(String cheminFile) throws IOException{
+	    	  try (BufferedReader reader = new BufferedReader(new FileReader(new File(cheminFile)))) {
+	    		    int l = 0;
+	    	        String line;
+	    	        boolean ligne;
+	    	        while ((line = reader.readLine()) != null){
+	    	        	l++;
+	    	        }
+	    	        if( l != 7)
+	    	        	return false;
+	    	        else {
+	    	        	BufferedReader reader1 = new BufferedReader(new FileReader(new File(cheminFile))) ;
+	                   l=0;
+	    	    	        while ((line = reader1.readLine()) != null){
+	    	    	           	switch (l) {
+	    	    	        	  case 0:
+	    	    	        		  ligne = Pattern.matches("[a-zA-Z]+\\s*[a-zA-Z]*",line ) ;
+	    	    	                  if(!ligne)
+	    	    	                      return false;
+	    	    	        	       break;
+	    	    	        	  case 1:
+	    	    	        		ligne = Pattern.matches("\\d+",line ) ;
+	  	    	                  if(!ligne)
+	  	    	                      return false;
+	    	    	        	    break;
+	    	    	        	  case 2:
+	    	    	        		ligne = Pattern.matches("\\d+",line ) ;
+	  	    	                  if(!ligne)
+	  	    	                      return false;
+	    	    	        	    break;
+	    	    	        	  case 3:
+	    	    	        		ligne = Pattern.matches("\\d+",line ) ;
+	  	    	                  if(!ligne)
+	  	    	                      return false;
+	    	    	        	    break;
+	    	    	        	  case 4:
+	    	    	        		ligne = Pattern.matches("(-)?\\d+.\\d+",line ) ;
+	  	    	                  if(!ligne)
+	  	    	                      return false;
+	    	    	        	    break;
+	    	    	        	  case 5:
+	    	    	        		ligne = Pattern.matches("(-)?\\d+.\\d+",line ) ;
+	  	    	                  if(!ligne)
+	  	    	                      return false;
+	    	    	        	    break;
+	    	    	        	  case 6:
+	    	    	        		ligne = Pattern.matches("([0-2][0-9]|3[0-1])/(((0)[0-9])|((1)[0-2]))/\\d{4}",line ) ;
+	  	    	                  if(!ligne)
+	  	    	                      return false;
+	    	    	        	    break;
+	    	    	        	}
+	    	    	        	l++;
+	    	    	        }  reader1.close();
+	    	        }
+	    }
 
+	  		return true;}
 
 	    private  void addEmptyLine(Paragraph paragraph, int number) {
 	        for (int i = 0; i < number; i++) {
