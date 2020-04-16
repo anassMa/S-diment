@@ -242,7 +242,7 @@ public class SampleController implements Initializable{
               else if( !Pattern.matches("(-)?\\d+.\\d+",longitude.getText() )){
             	  Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
-			    	alert.setContentText("Le champ  Longitude doit être de type double !!!");
+			    	alert.setContentText("Le champ  Longitude doit être de type double !!! ");
 			    	alert.showAndWait();
               }
               else {
