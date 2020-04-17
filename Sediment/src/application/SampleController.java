@@ -218,7 +218,7 @@ public class SampleController implements Initializable{
               else if( !Pattern.matches("\\d+",echantillon.getText() )){
             	  Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
-			    	alert.setContentText("Le champ  Numéro d'échantillon doit être un entier  !!! ");
+			    	alert.setContentText("Le champ  Numéro d'échantillon doit être un entier  !!!");
 			    	alert.showAndWait();
               }
               else if( !Pattern.matches("\\d+",distance.getText() )){
