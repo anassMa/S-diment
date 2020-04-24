@@ -5,9 +5,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
@@ -51,6 +55,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -59,6 +64,7 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 
 
@@ -134,6 +140,18 @@ public class SampleController implements Initializable{
 
 	    Sediment sed ;
 
+	    String auteurOK ="";
+
+	    String echantillonOK="";
+
+	    String distanceOK="";
+
+	    String profilOK="";
+
+	    String latitudeOK="";
+
+	    String longitudeOK="";
+
 
 	    private static String FILE ;
 
@@ -142,6 +160,7 @@ public class SampleController implements Initializable{
 	    private static Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12,
 	            Font.BOLD);
 
+	    String pwd = System.getProperty("user.dir");
 
 	    @FXML
 	    private void Choisir(ActionEvent event) {
@@ -170,6 +189,8 @@ public class SampleController implements Initializable{
 	    @FXML
 	    private void charger(ActionEvent event) throws IOException {
 		       FileChooser fc = new FileChooser();
+		       File chemin = new File(pwd);
+		       fc.setInitialDirectory(chemin);
 		       if (firstPath1 != null) {
 		           File path = new File(firstPath1);
 		           fc.initialDirectoryProperty().set(path);
@@ -202,6 +223,7 @@ public class SampleController implements Initializable{
 
 	    @FXML
 	    private void Enregistrer(ActionEvent event) throws IOException{
+
               if(auteur.getText().isEmpty() || echantillon.getText().isEmpty() || distance.getText().isEmpty() || profil.getText().isEmpty()  ||
             		  latitude.getText().isEmpty() || longitude.getText().isEmpty() || DatePrel.getValue()== null ){
             	  Alert alert = new Alert(AlertType.WARNING);
@@ -209,70 +231,119 @@ public class SampleController implements Initializable{
 			    	alert.setContentText("Il faut remplir tous les champs ! ");
 			    	alert.showAndWait();
               }
-              else if( !Pattern.matches("[a-zA-Z]+\\s*[a-zA-Z]*",auteur.getText() )){
+              else{
+            	  if( Pattern.matches("[a-zA-Z]+\\s*[a-zA-Z]*",auteur.getText() ) &&
+        	    		  Pattern.matches("\\d+",echantillon.getText())                &&
+        	    		  Pattern.matches("\\d+",distance.getText() )                  &&
+        	    		  Pattern.matches("\\d+",profil.getText() )                    &&
+        	    		  Pattern.matches("(-)?\\d+.\\d+",latitude.getText() )         &&
+        	    		  Pattern.matches("(-)?\\d+.\\d+",longitude.getText() )
+        	    		  ) {
+                	    auteurOK=auteur.getText();
+                	    echantillonOK=echantillon.getText();
+                        distanceOK=distance.getText();
+                        profilOK=profil.getText();
+                        latitudeOK=latitude.getText();
+                        longitudeOK=longitude.getText();
+                	  final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                	  alert.setTitle("Demande de confirmation");
+                	  alert.setContentText("Souhaitez-vous écraser le fichier courant ?");
+                	  final Optional<ButtonType> result = alert.showAndWait();
+                	  result.ifPresent(button -> {
+                	      if (button == ButtonType.OK) {
+                	    	  try {
+    							replacement(ch.getText());
+    						} catch (IOException e) {
+    							// TODO Auto-generated catch block
+    							e.printStackTrace();
+    						}
+                	      }
+                	      else {
+                	    	  FileChooser fc = new FileChooser();
+                        	  File chemin = new File(pwd);
+               		          fc.setInitialDirectory(chemin);
+               		          if (firstPath2 != null) {
+               		           File path = new File(firstPath2);
+               		           fc.initialDirectoryProperty().set(path);
+               		       }
+                        	  FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+                              fc.getExtensionFilters().add(extFilter);
+
+                              File f = fc.showSaveDialog(null);
+
+
+                              if (f != null) {
+                            	  try {
+    								replacement(f.getAbsolutePath());
+    							} catch (IOException e) {
+    								// TODO Auto-generated catch block
+    								e.printStackTrace();
+    							}
+                            	  String path = f.getPath();
+               		           int len = path.lastIndexOf("/"); //no detec return -1
+               		           if (len == -1) {
+               		               len = path.lastIndexOf("\\");
+               		           		}
+               			     firstPath2 = path.substring(0, len);
+               			     File file = new File(f.getAbsolutePath().replace('\\', '/'));
+               			     nameFile2 = file.getName();
+                              }
+                	      }
+                	  });
+
+
+                	  Alert alert1 = new Alert(AlertType.INFORMATION);
+    		  	    	alert1.setTitle("Information");
+    		  	    	alert1.setHeaderText(null);
+    		  	    	alert1.setContentText("Les informations ont été bien enregistrées dans le fichier !");
+    		  	    	alert1.showAndWait();
+                  }
+            	  else{
+               if( !Pattern.matches("[a-zA-Z]+\\s*[a-zA-Z]*",auteur.getText() )){
             	  Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Le champ  Auteur doit être une chaine de caractères alphabétiques  !!!");
 			    	alert.showAndWait();
+			    	auteur.setText(auteurOK);
               }
-              else if( !Pattern.matches("\\d+",echantillon.getText() )){
+
+               if( !Pattern.matches("\\d+",echantillon.getText() )){
             	  Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Le champ  Numéro d'échantillon doit être un entier  !!!");
 			    	alert.showAndWait();
+			    	echantillon.setText(echantillonOK);
               }
-              else if( !Pattern.matches("\\d+",distance.getText() )){
+               if( !Pattern.matches("\\d+",distance.getText() )){
             	  Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Le champ  Distance doit être un entier  !!! ");
 			    	alert.showAndWait();
+			    	distance.setText(distanceOK);
               }
-              else if( !Pattern.matches("\\d+",profil.getText() )){
+               if( !Pattern.matches("\\d+",profil.getText() )){
             	  Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Le champ  Numéro de profil doit être un entier  !!! ");
 			    	alert.showAndWait();
+			    	profil.setText(profilOK);
               }
-              else if( !Pattern.matches("(-)?\\d+.\\d+",latitude.getText() )){
+               if( !Pattern.matches("(-)?\\d+.\\d+",latitude.getText() )){
             	  Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Le champ  Latitude doit être de type double !!! ");
 			    	alert.showAndWait();
+			    	latitude.setText(latitudeOK);
               }
-              else if( !Pattern.matches("(-)?\\d+.\\d+",longitude.getText() )){
+               if( !Pattern.matches("(-)?\\d+.\\d+",longitude.getText() )){
             	  Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Le champ  Longitude doit être de type double !!! ");
 			    	alert.showAndWait();
+			    	longitude.setText(longitudeOK);
               }
-              else {
-            	  replacement(ch.getText());
-            	  FileChooser fc = new FileChooser();
-   		          if (firstPath2 != null) {
-   		           File path = new File(firstPath2);
-   		           fc.initialDirectoryProperty().set(path);
-   		       }
-            	  FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
-                  fc.getExtensionFilters().add(extFilter);
 
-                  File f = fc.showSaveDialog(null);
-
-                  if (f != null) {
-                	  replacement(f.getAbsolutePath());
-                	  String path = f.getPath();
-   		           int len = path.lastIndexOf("/"); //no detec return -1
-   		           if (len == -1) {
-   		               len = path.lastIndexOf("\\");
-   		           		}
-   			     firstPath2 = path.substring(0, len);
-   			     File file = new File(f.getAbsolutePath().replace('\\', '/'));
-   			     nameFile2 = file.getName();
-                  }
-            	  Alert alert = new Alert(AlertType.INFORMATION);
-		  	    	alert.setTitle("Information");
-		  	    	alert.setHeaderText(null);
-		  	    	alert.setContentText("Les informations ont été bien enregistrées dans le fichier !");
-		  	    	alert.showAndWait();
+            	  }
               }
 
 	  }
@@ -499,7 +570,7 @@ public class SampleController implements Initializable{
     	        		  DatePrel.setValue(LOCAL_DATE(line));
     	        	    break;
     	        	}
-    	           // System.out.println(line);
+
     	        	l++;
     	        }
     	    } catch (IOException e) {
