@@ -1,15 +1,11 @@
 
 package application;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -18,15 +14,8 @@ import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 
 
-import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.Phrase;
 
 import Chart.LogarithmicAxis;
 import Model.Configuration;
@@ -38,7 +27,6 @@ import javafx.fxml.Initializable;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,7 +52,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
-import javafx.stage.Window;
 
 
 
@@ -352,8 +339,6 @@ public class SampleController implements Initializable{
 	    	FileWriter fw = new FileWriter(txt);
 	    	   BufferedWriter bw = new BufferedWriter(fw);
 
-
-
 	    	   bw.write(auteur.getText());
 	    	   bw.newLine();
 	    	   bw.write(echantillon.getText());
@@ -463,7 +448,7 @@ public class SampleController implements Initializable{
 
 	                Files.move
 	                        (Paths.get(file.getAbsolutePath()),
-	                        Paths.get(firstPath+"/"+"courbe"+nameFile+".png"));
+	                        Paths.get(pwd+"/result/"+"courbe"+nameFile+".png"));
 
 	            }
 
@@ -520,18 +505,11 @@ public class SampleController implements Initializable{
 	    @FXML
 	    private void generer(ActionEvent event) throws IOException, DocumentException{
 
-	    	FILE = firstPath+"/RapportDe"+nameFile+".pdf";
-	        Document document = new Document();
-            PdfWriter.getInstance(document, new FileOutputStream(FILE));
-            document.open();
-            addMetaData(document);
-            addTitlePage(document);
+	    	String FILE = pwd+"/result/RapportDe"+nameFile+".txt";
 
-            document.close();
-            //String imagePath = "courbe"+nameFile;
-            //Image image = new Image(imagePath);
 
-            //saveToFile(image);
+
+	    	CreerText(FILE);
 	    	Alert alert = new Alert(AlertType.INFORMATION);
 
             alert.setTitle("Information");
@@ -686,113 +664,6 @@ public class SampleController implements Initializable{
 	        return chart2;
 	    }
 
-	    private  void addMetaData(Document document) {
-	        document.addTitle("RapportDe"+nameFile);
-	        document.addSubject("Using iText");
-	        document.addKeywords("Java, PDF, iText");
-	        document.addAuthor("Anass MAAFI");
-	        document.addCreator("Anass MAAFI");
-	    }
-
-	    private  void addTitlePage(Document document)
-	            throws DocumentException, MalformedURLException, IOException {
-	        Paragraph preface = new Paragraph();
-
-	        addEmptyLine(preface, 1);
-	        preface.add(new Paragraph("Rapport de l'Analyse granulométrique ", catFont));
-
-	        addEmptyLine(preface, 3);
-
-
-	        preface.add(new Paragraph(
-	                "Auteur: " + auteur.getText(), smallBold));
-
-	        addEmptyLine(preface, 1);
-	        preface.add(new Paragraph(
-	                "Numéro d'échantillon  : " + echantillon.getText(),
-	                smallBold));
-
-	        addEmptyLine(preface, 1);
-	        preface.add(new Paragraph(
-	                "Distance  : " + distance.getText(),
-	                smallBold));
-
-	        addEmptyLine(preface, 1);
-	        preface.add(new Paragraph(
-	                "Numéro de profil  : " + profil.getText(),
-	                smallBold));
-
-	        addEmptyLine(preface, 1);
-	        preface.add(new Paragraph(
-	                "Latitude  : " + latitude.getText(),
-	                smallBold));
-
-	        addEmptyLine(preface, 1);
-	        preface.add(new Paragraph(
-	                "Longitude  : " + longitude.getText(),
-	                smallBold));
-
-	        addEmptyLine(preface, 1);
-	        preface.add(new Paragraph(
-	                "Date de prélèvement  : " + DatePrel.getValue(),
-	                smallBold));
-
-	        addEmptyLine(preface, 1);
-	        preface.add(new Paragraph(
-	                "Température (°C)   : " + Configuration.getTemperature(),
-	                smallBold));
-
-	        addEmptyLine(preface, 1);
-	        preface.add(new Paragraph(
-	                "Longeur du tube (cm)  : " + Configuration.getLongueur(),
-	                smallBold));
-
-	        addEmptyLine(preface, 1);
-	        preface.add(new Paragraph(
-	                "Fichier source  : " + nameFile,
-	                smallBold));
-
-
-	        addEmptyLine(preface, 2);
-
-            document.add(preface);
-            addEmptyLine(preface, 1);
-
-            createTable(document);
-
-
-	    }
-
-
-
-	    private  void createTable(Document document)
-	            throws DocumentException {
-	        PdfPTable table = new PdfPTable(3);
-
-	        PdfPCell c1 = new PdfPCell(new Phrase("Médiane"));
-	        c1.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        table.addCell(c1);
-
-	        c1 = new PdfPCell(new Phrase("Quartile inférieur Q25"));
-	        c1.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        table.addCell(c1);
-
-	        c1 = new PdfPCell(new Phrase("Quartile Supérieur Q 75"));
-	        c1.setHorizontalAlignment(Element.ALIGN_CENTER);
-	        table.addCell(c1);
-	        table.setHeaderRows(1);
-
-	        table.addCell(""+mediane);
-	        table.addCell(""+quartileInff);
-	        if(quatileSup !=0)
-	        table.addCell(""+quatileSup);
-	        else
-	        	 table.addCell("");
-
-
-	        document.add(table);
-
-	    }
 
 	    public  boolean verifierFormat(String cheminFile) throws IOException{
 	    	  try (BufferedReader reader = new BufferedReader(new FileReader(new File(cheminFile)))) {
@@ -852,11 +723,7 @@ public class SampleController implements Initializable{
 
 	  		return true;}
 
-	    private  void addEmptyLine(Paragraph paragraph, int number) {
-	        for (int i = 0; i < number; i++) {
-	            paragraph.add(new Paragraph(" "));
-	        }
-	    }
+
 
 	    public static final LocalDate LOCAL_DATE (String dateString){
 	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -864,6 +731,46 @@ public class SampleController implements Initializable{
 	        return localDate;
 	    }
 
+	    public void CreerText(String nom) throws IOException {
+	    	FileWriter fw = new FileWriter(nom);
+	    	   BufferedWriter bw = new BufferedWriter(fw);
+
+
+
+	    	   bw.write("Auteur: " + auteur.getText());
+	    	   bw.newLine();
+	    	   bw.write("Numéro d'échantillon  : " + echantillon.getText());
+	    	   bw.newLine();
+	    	   bw.write("Distance  : " + distance.getText());
+	    	   bw.newLine();
+	    	   bw.write("Numéro de profil  : " + profil.getText());
+	    	   bw.newLine();
+	    	   bw.write("Latitude  : " + latitude.getText());
+	    	   bw.newLine();
+	    	   bw.write("Longitude  : " + longitude.getText());
+	    	   bw.newLine();
+	    	   bw.write("Date de prélèvement  : " + DatePrel.getValue());
+	    	   bw.newLine();
+	    	   bw.write( "Température (°C)   : " + Configuration.getTemperature());
+	    	   bw.newLine();
+	    	   bw.write( "Longeur du tube (cm)  : " + Configuration.getLongueur());
+	    	   bw.newLine();
+	    	   bw.write( "Fichier source  : " + nameFile);
+	    	   bw.newLine();
+	    	   bw.write( "Médiane : "+mediane);
+	    	   bw.newLine();
+	    	   bw.write("Quartile inférieur Q25 : "+quartileInff);
+	    	   bw.newLine();
+	    	   if(quatileSup !=0)
+	    		   bw.write("Quartile Supérieur Q 75 : "+quatileSup);
+	   	        else
+	   	         bw.write("Quartile Supérieur Q 75 : "+"");
+
+	    	   bw.flush();
+	    	   bw.close();
+
+
+	    }
 	    @Override
 	    public void initialize(URL url, ResourceBundle rb) {
 	        // TODO
