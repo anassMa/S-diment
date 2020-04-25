@@ -1,0 +1,13 @@
+Auteur: anass MAAFI
+Numéro d'échantillon  : 44
+Distance  : 100
+Numéro de profil  : 8
+Latitude  : 6.03
+Longitude  : 6.0
+Date de prélèvement  : 1993-04-25
+Température (°C)   : 22.0
+Longeur du tube (cm)  : 90.0
+Fichier source  : P4A1.dat
+Médiane : 111.95839545338012
+Quartile inférieur Q25 : 122.48284979789892
+Quartile Supérieur Q 75 : 
