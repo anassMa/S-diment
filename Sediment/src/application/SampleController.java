@@ -15,7 +15,6 @@ import javax.imageio.ImageIO;
 
 
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
 
 import Chart.LogarithmicAxis;
 import Model.Configuration;
@@ -59,6 +58,7 @@ import javafx.stage.FileChooser;
 
 
 public class SampleController implements Initializable{
+
 	    @FXML
         private Label ch ;
 	    @FXML
@@ -107,95 +107,83 @@ public class SampleController implements Initializable{
 	     private Label  quartileInf ;
 	    @FXML
 	     private Label qSup;
+
 	    private LineChart<Number,Number> chart;
 
 	    DataSedimentReader r ;
 
-	    private String firstPath;
+	    String firstPath , firstPath1, firstPath2;
 
-	    private String firstPath1;
-
-	    private String firstPath2;
-
-	     double mediane ;
-
-	     double quartileInff ;
-
-         double quatileSup ;
+	    double mediane , quartileInff , quatileSup ;
 
 	    String nameFile ,nameFile1 , nameFile2;
 
 	    Sediment sed ;
 
-	    String auteurOK ="";
-
-	    String echantillonOK="";
-
-	    String distanceOK="";
-
-	    String profilOK="";
-
-	    String latitudeOK="";
-
-	    String longitudeOK="";
-
-
-	    private static String FILE ;
-
-	    private static Font catFont = new Font(Font.FontFamily.TIMES_ROMAN, 18,
-	            Font.BOLD);
-	    private static Font smallBold = new Font(Font.FontFamily.TIMES_ROMAN, 12,
-	            Font.BOLD);
+	    String auteurOK ="", echantillonOK="", distanceOK="", profilOK="", latitudeOK="", longitudeOK="";
 
 	    String pwd = System.getProperty("user.dir");
 
+
 	    @FXML
 	    private void Choisir(ActionEvent event) {
+
 	       FileChooser fc = new FileChooser();
+	       File chemin = new File(pwd);
+	       fc.setInitialDirectory(chemin);
+
 	       if (firstPath != null) {
 	           File path = new File(firstPath);
 	           fc.initialDirectoryProperty().set(path);
 	       }
+
 	       fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("dat fichiers" , "*.dat"));
 	       fc.setTitle("Selectionner le fichier");
 
 	       File f = fc.showOpenDialog(null);
-	        if( f!= null){
+	       if( f!= null){
 	           label.setText(f.getAbsolutePath());
 	           String path = f.getPath();
 	           int len = path.lastIndexOf("/"); //no detec return -1
 	           if (len == -1) {
 	               len = path.lastIndexOf("\\");
 	        }
-		     firstPath = path.substring(0, len);
-		     File file = new File(f.getAbsolutePath().replace('\\', '/'));
-		     nameFile = file.getName();
-  }
+		    firstPath = path.substring(0, len);
+		    File file = new File(f.getAbsolutePath().replace('\\', '/'));
+		    nameFile = file.getName();
+           }
 
-	    }
+	     }
+
 	    @FXML
 	    private void charger(ActionEvent event) throws IOException {
-		       FileChooser fc = new FileChooser();
+
+	    	   FileChooser fc = new FileChooser();
 		       File chemin = new File(pwd);
 		       fc.setInitialDirectory(chemin);
+
 		       if (firstPath1 != null) {
 		           File path = new File(firstPath1);
 		           fc.initialDirectoryProperty().set(path);
 		       }
+
 		       fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("txt fichiers" , "*.txt"));
 		       fc.setTitle("Selectionner le fichier");
 
 		       File f = fc.showOpenDialog(null);
-		        if( f!= null){
+
+		       if( f!= null){
 		           ch.setText(f.getAbsolutePath());
 		           String path = f.getPath();
 		           int len = path.lastIndexOf("/"); //no detec return -1
 		           if (len == -1) {
 		               len = path.lastIndexOf("\\");
 		        }
+
 			     firstPath1 = path.substring(0, len);
 			     File file = new File(f.getAbsolutePath().replace('\\', '/'));
 			     nameFile1 = file.getName();
+
 	            }
 		        if(! verifierFormat(ch.getText())){
                 	Alert alert = new Alert(AlertType.WARNING);
@@ -203,22 +191,27 @@ public class SampleController implements Initializable{
 			    	alert.setContentText("la format de fichier n'est pas OK  !\n");
 			    	alert.showAndWait();
                 }
+
 		        else{
 		        lire(ch.getText());
 		        }
-		    }
+
+		        }
 
 	    @FXML
 	    private void Enregistrer(ActionEvent event) throws IOException{
 
               if(auteur.getText().isEmpty() || echantillon.getText().isEmpty() || distance.getText().isEmpty() || profil.getText().isEmpty()  ||
-            		  latitude.getText().isEmpty() || longitude.getText().isEmpty() || DatePrel.getValue()== null ){
-            	  Alert alert = new Alert(AlertType.WARNING);
+            		latitude.getText().isEmpty() || longitude.getText().isEmpty() || DatePrel.getValue()== null ){
+
+            	    Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Il faut remplir tous les champs ! ");
 			    	alert.showAndWait();
               }
+
               else{
+
             	  if( Pattern.matches("[a-zA-Z]+\\s*[a-zA-Z]*",auteur.getText() ) &&
         	    		  Pattern.matches("\\d+",echantillon.getText())                &&
         	    		  Pattern.matches("\\d+",distance.getText() )                  &&
@@ -226,26 +219,28 @@ public class SampleController implements Initializable{
         	    		  Pattern.matches("(-)?\\d+.\\d+",latitude.getText() )         &&
         	    		  Pattern.matches("(-)?\\d+.\\d+",longitude.getText() )
         	    		  ) {
+
                 	    auteurOK=auteur.getText();
                 	    echantillonOK=echantillon.getText();
                         distanceOK=distance.getText();
                         profilOK=profil.getText();
                         latitudeOK=latitude.getText();
                         longitudeOK=longitude.getText();
-                	  final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                	  alert.setTitle("Demande de confirmation");
-                	  alert.setContentText("Souhaitez-vous écraser le fichier courant ?");
-                	  final Optional<ButtonType> result = alert.showAndWait();
-                	  result.ifPresent(button -> {
-                	      if (button == ButtonType.OK) {
-                	    	  try {
-    							replacement(ch.getText());
-    						} catch (IOException e) {
-    							// TODO Auto-generated catch block
-    							e.printStackTrace();
-    						}
-                	      }
-                	      else {
+
+	                	final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+	                	alert.setTitle("Demande de confirmation");
+	                	alert.setContentText("Souhaitez-vous écraser le fichier courant ?");
+	                	final Optional<ButtonType> result = alert.showAndWait();
+	                	result.ifPresent(button -> {
+	                	if (button == ButtonType.OK) {
+	                	    	try {
+	    							replacement(ch.getText());
+	    						} catch (IOException e) {
+	    							e.printStackTrace();
+	    						}
+	                	      }
+
+                	     else {
                 	    	  FileChooser fc = new FileChooser();
                         	  File chemin = new File(pwd);
                		          fc.setInitialDirectory(chemin);
@@ -253,90 +248,97 @@ public class SampleController implements Initializable{
                		           File path = new File(firstPath2);
                		           fc.initialDirectoryProperty().set(path);
                		       }
-                        	  FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
-                              fc.getExtensionFilters().add(extFilter);
 
-                              File f = fc.showSaveDialog(null);
+                          FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+                          fc.getExtensionFilters().add(extFilter);
 
+                          File f = fc.showSaveDialog(null);
 
-                              if (f != null) {
-                            	  try {
+                          if (f != null) {
+                               try {
     								replacement(f.getAbsolutePath());
     							} catch (IOException e) {
     								// TODO Auto-generated catch block
     								e.printStackTrace();
-    							}
-                            	  String path = f.getPath();
-               		           int len = path.lastIndexOf("/"); //no detec return -1
-               		           if (len == -1) {
+    					        }
+
+                           String path = f.getPath();
+               		       int len = path.lastIndexOf("/"); //no detec return -1
+
+               		       if (len == -1) {
                		               len = path.lastIndexOf("\\");
                		           		}
-               			     firstPath2 = path.substring(0, len);
-               			     File file = new File(f.getAbsolutePath().replace('\\', '/'));
-               			     nameFile2 = file.getName();
+
+               			    firstPath2 = path.substring(0, len);
+               			    File file = new File(f.getAbsolutePath().replace('\\', '/'));
+               			    nameFile2 = file.getName();
+
                               }
                 	      }
                 	  });
 
 
-                	  Alert alert1 = new Alert(AlertType.INFORMATION);
-    		  	    	alert1.setTitle("Information");
-    		  	    	alert1.setHeaderText(null);
-    		  	    	alert1.setContentText("Les informations ont été bien enregistrées dans le fichier !");
-    		  	    	alert1.showAndWait();
+	                	  Alert alert1 = new Alert(AlertType.INFORMATION);
+	    		  	      alert1.setTitle("Information");
+	    		  	      alert1.setHeaderText(null);
+	    		  	      alert1.setContentText("Les informations ont été bien enregistrées dans le fichier !");
+	    		  	      alert1.showAndWait();
                   }
+
             	  else{
-               if( !Pattern.matches("[a-zA-Z]+\\s*[a-zA-Z]*",auteur.getText() )){
-            	  Alert alert = new Alert(AlertType.WARNING);
-		    		alert.setHeaderText(null);
-			    	alert.setContentText("Le champ  Auteur doit être une chaine de caractères alphabétiques  !!!");
-			    	alert.showAndWait();
-			    	auteur.setText(auteurOK);
-              }
 
-               if( !Pattern.matches("\\d+",echantillon.getText() )){
-            	  Alert alert = new Alert(AlertType.WARNING);
-		    		alert.setHeaderText(null);
-			    	alert.setContentText("Le champ  Numéro d'échantillon doit être un entier  !!!");
-			    	alert.showAndWait();
-			    	echantillon.setText(echantillonOK);
-              }
-               if( !Pattern.matches("\\d+",distance.getText() )){
-            	  Alert alert = new Alert(AlertType.WARNING);
-		    		alert.setHeaderText(null);
-			    	alert.setContentText("Le champ  Distance doit être un entier  !!! ");
-			    	alert.showAndWait();
-			    	distance.setText(distanceOK);
-              }
-               if( !Pattern.matches("\\d+",profil.getText() )){
-            	  Alert alert = new Alert(AlertType.WARNING);
-		    		alert.setHeaderText(null);
-			    	alert.setContentText("Le champ  Numéro de profil doit être un entier  !!! ");
-			    	alert.showAndWait();
-			    	profil.setText(profilOK);
-              }
-               if( !Pattern.matches("(-)?\\d+.\\d+",latitude.getText() )){
-            	  Alert alert = new Alert(AlertType.WARNING);
-		    		alert.setHeaderText(null);
-			    	alert.setContentText("Le champ  Latitude doit être de type double !!! ");
-			    	alert.showAndWait();
-			    	latitude.setText(latitudeOK);
-              }
-               if( !Pattern.matches("(-)?\\d+.\\d+",longitude.getText() )){
-            	  Alert alert = new Alert(AlertType.WARNING);
-		    		alert.setHeaderText(null);
-			    	alert.setContentText("Le champ  Longitude doit être de type double !!! ");
-			    	alert.showAndWait();
-			    	longitude.setText(longitudeOK);
-              }
+            		  if( !Pattern.matches("[a-zA-Z]+\\s*[a-zA-Z]*",auteur.getText() )){
+		            	    Alert alert = new Alert(AlertType.WARNING);
+				    		alert.setHeaderText(null);
+					    	alert.setContentText("Le champ  Auteur doit être une chaine de caractères alphabétiques  !!!");
+					    	alert.showAndWait();
+					    	auteur.setText(auteurOK);
+	              }
 
-            	  }
-              }
+            		  if( !Pattern.matches("\\d+",echantillon.getText() )){
+		            	    Alert alert = new Alert(AlertType.WARNING);
+				    		alert.setHeaderText(null);
+					    	alert.setContentText("Le champ  Numéro d'échantillon doit être un entier  !!!");
+					    	alert.showAndWait();
+					    	echantillon.setText(echantillonOK);
+	              }
 
-	  }
+            		  if( !Pattern.matches("\\d+",distance.getText() )){
+	            			Alert alert = new Alert(AlertType.WARNING);
+				    		alert.setHeaderText(null);
+					    	alert.setContentText("Le champ  Distance doit être un entier  !!! ");
+					    	alert.showAndWait();
+					    	distance.setText(distanceOK);
+	              }
+
+	               if( !Pattern.matches("\\d+",profil.getText() )){
+		            	    Alert alert = new Alert(AlertType.WARNING);
+				    		alert.setHeaderText(null);
+					    	alert.setContentText("Le champ  Numéro de profil doit être un entier  !!! ");
+					    	alert.showAndWait();
+					    	profil.setText(profilOK);
+	              }
+	               if( !Pattern.matches("(-)?\\d+.\\d+",latitude.getText() )){
+		            	    Alert alert = new Alert(AlertType.WARNING);
+				    		alert.setHeaderText(null);
+					    	alert.setContentText("Le champ  Latitude doit être de type double !!! ");
+					    	alert.showAndWait();
+					    	latitude.setText(latitudeOK);
+	              }
+	               if( !Pattern.matches("(-)?\\d+.\\d+",longitude.getText() )){
+		            	    Alert alert = new Alert(AlertType.WARNING);
+				    		alert.setHeaderText(null);
+					    	alert.setContentText("Le champ  Longitude doit être de type double !!! ");
+					    	alert.showAndWait();
+					    	longitude.setText(longitudeOK);
+	              }
+
+            	 }
+           }}
 
 	    public void replacement(String txt ) throws IOException {
-	    	FileWriter fw = new FileWriter(txt);
+
+	    	   FileWriter fw = new FileWriter(txt);
 	    	   BufferedWriter bw = new BufferedWriter(fw);
 
 	    	   bw.write(auteur.getText());
@@ -356,19 +358,21 @@ public class SampleController implements Initializable{
 	    	   bw.flush();
 	    	   bw.close();
 
-
 	    }
 
 	    @FXML
 	    private void traiterFichier(ActionEvent event) throws IOException {
+
 	    	  if(  label.getText().isEmpty() ){
 
 	    		    Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Vous avez entré aucun fichier  !");
 			    	alert.showAndWait();
+
 	    	  }
 	    	  else {
+
 	    		  r = new DataSedimentReader(label.getText());
                     if(! r.verifierFormatFichier()){
                     	Alert alert = new Alert(AlertType.WARNING);
@@ -376,27 +380,31 @@ public class SampleController implements Initializable{
     			    	alert.setContentText("la format de fichier n'est pas OK   !\n"+r.getMessage());
     			    	alert.showAndWait();
                     }
+
                     else{
-			    	sed = new Sediment();
-		            sed = r.read();
-		            Alert alert = new Alert(AlertType.INFORMATION);
-		  	    	alert.setTitle("Information");
-		  	    	alert.setHeaderText(null);
-		  	    	alert.setContentText("Le fichier était chargé avec succés !");
-		  	    	alert.showAndWait();
+				    	sed = new Sediment();
+			            sed = r.read();
+			            Alert alert = new Alert(AlertType.INFORMATION);
+			  	    	alert.setTitle("Information");
+			  	    	alert.setHeaderText(null);
+			  	    	alert.setContentText("Le fichier était chargé avec succés !");
+			  	    	alert.showAndWait();
                     }
 	    	  }
 	    }
+
 	    @FXML
 	    private void configurer(ActionEvent event){
+
 	    	if( Double.parseDouble(longeur.getText()) > 0 && Double.parseDouble(temperature.getText()) > 0) {
-	    	Configuration.setLongueur(Double.parseDouble(longeur.getText()));
-	    	Configuration.setTemperature(Double.parseDouble(temperature.getText()));
-	    	Alert alert = new Alert(AlertType.INFORMATION);
-	    	alert.setTitle("Information");
-	    	alert.setHeaderText(null);
-	    	alert.setContentText("La configuration est terminée avec succés !");
-	    	alert.showAndWait();
+
+		    	Configuration.setLongueur(Double.parseDouble(longeur.getText()));
+		    	Configuration.setTemperature(Double.parseDouble(temperature.getText()));
+		    	Alert alert = new Alert(AlertType.INFORMATION);
+		    	alert.setTitle("Information");
+		    	alert.setHeaderText(null);
+		    	alert.setContentText("La configuration est terminée avec succés !");
+		    	alert.showAndWait();
 
 	    	}
 	    	else{
@@ -415,72 +423,80 @@ public class SampleController implements Initializable{
 		    	}
 	    	}
 	    }
+
 	    @FXML
 	    private void tracerCourbe(ActionEvent event) throws IOException{
+
 	    	if(Double.parseDouble(min.getText()) > 0 && Double.parseDouble(max.getText()) > 0 && Double.parseDouble(max.getText()) > Double.parseDouble(min.getText()) ){
 
-	         chart =  createLogScatterChart(sed.getDiametre() , sed.getFrequencesPonderalesCumule() , Double.parseDouble(min.getText())  , Double.parseDouble(max.getText()) );
-	    	charteP.getChildren().clear();
-	    	charteP.getChildren().add(fitToParent(chart));
+		        chart =  createLogScatterChart(sed.getDiametre() , sed.getFrequencesPonderalesCumule() , Double.parseDouble(min.getText())  , Double.parseDouble(max.getText()) );
+		    	charteP.getChildren().clear();
+		    	charteP.getChildren().add(fitToParent(chart));
 
-	             mediane =   getMediane(sed.getDiametre() ,sed.getFrequencesPonderalesCumule());
+	            mediane =   getMediane(sed.getDiametre() ,sed.getFrequencesPonderalesCumule());
 
 	            medianeL.setText("Médiane : "+mediane);
 
-
-	             quartileInff =   getQuartileInf(sed.getDiametre() ,sed.getFrequencesPonderalesCumule());
+	            quartileInff =   getQuartileInf(sed.getDiametre() ,sed.getFrequencesPonderalesCumule());
 
 	            quartileInf.setText("Quartile inférieur :"+quartileInff);
 
-	             quatileSup =getQuartileSup(sed.getDiametre() ,sed.getFrequencesPonderalesCumule());
+	            quatileSup =getQuartileSup(sed.getDiametre() ,sed.getFrequencesPonderalesCumule());
 
                 if(quatileSup != 0 )
-	            qSup.setText("Quartile Supérieur :"+quatileSup);
+                	qSup.setText("Quartile Supérieur :"+quatileSup);
 
-
-
-	               WritableImage image = chartsToImages(chart);
-	                File file = new File("courbe"+nameFile);
-	                try {
+                // Capture de l'image de la courbe
+	            WritableImage image = chartsToImages(chart);
+	            File file = new File("courbe"+nameFile);
+	            try {
 	                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
-	                } catch (IOException ex) {
-	                }
 
-	                Files.move
+	             } catch (IOException ex) {
+	               }
+
+	            // deplacemment de l'image vers le dossier result
+	             Files.move
 	                        (Paths.get(file.getAbsolutePath()),
 	                        Paths.get(pwd+"/result/"+"courbe"+nameFile+".png"));
-
 	            }
 
 
 	    	else {
+
 	    		if( Double.parseDouble(min.getText()) <= 0) {
+
 		    		Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Le Min du diamètre doit être supérieur à 0  !");
 			    	alert.showAndWait();
+
 		    	}
 	    		if( Double.parseDouble(max.getText()) <= 0) {
+
 		    		Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Le Max du diamètre doit être supérieur à 0  !");
 			    	alert.showAndWait();
+
 		    	}
 	    		if( Double.parseDouble(min.getText()) >= Double.parseDouble(max.getText())) {
+
 		    		Alert alert = new Alert(AlertType.WARNING);
 		    		alert.setHeaderText(null);
 			    	alert.setContentText("Le Max doit être supérieur au Min !");
 			    	alert.showAndWait();
+
 		    	}
 	    	}
 	    }
 	    public  LineChart<Number,Number> createLogScatterChart(List<Double> X , List<Double> Y , double MIN_X , double MAX_X ) {
-	        final int NUM_POINTS = X.size();
+
+	    	final int NUM_POINTS = X.size();
 
 	        final NumberAxis yAxis = new NumberAxis("Frequence cumulé", 0, 100 , 5);
 	        final LogarithmicAxis xAxis = new LogarithmicAxis(MIN_X,MAX_X);
 	        xAxis.setLabel("Diametre en micron");
-
 
 	        final LineChart<Number,Number> lineChart = new LineChart<Number,Number>(xAxis,yAxis);
 
@@ -493,7 +509,7 @@ public class SampleController implements Initializable{
 
 	        for (int i = 0; i < NUM_POINTS; i++) {
 	        	series.getData().add(new XYChart.Data<>( X.get(i),Y.get(i)));
-	        	 System.out.println(  X.get(i) +"     " + Y.get(i) );
+	        	// System.out.println(  X.get(i) +"     " + Y.get(i) );
 	        }
 
 	        lineChart.getData().add(series);
@@ -507,49 +523,45 @@ public class SampleController implements Initializable{
 
 	    	String FILE = pwd+"/result/RapportDe"+nameFile+".txt";
 
-
-
 	    	CreerText(FILE);
-	    	Alert alert = new Alert(AlertType.INFORMATION);
 
+	    	Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("Information");
   	    	alert.setHeaderText(null);
   	    	alert.setContentText("Le fichier est bien enregistré !");
   	    	alert.showAndWait();
 
-
 	    }
+
       public  void lire(String text ){
+
     	  try (BufferedReader reader = new BufferedReader(new FileReader(new File(text)))) {
-    		  int l = 0;
-    	        String line;
-    	        while ((line = reader.readLine()) != null){
+
+    	  int l = 0;
+    	  String line;
+
+    	  while ((line = reader.readLine()) != null){
 
     	        	switch (l) {
-    	        	  case 0:
-    	        		  auteur.setText(line);
-    	        	    break;
-    	        	  case 1:
-    	        		  echantillon.setText(line);
-    	        	    break;
-    	        	  case 2:
-    	        		  distance.setText(line);
-    	        	    break;
-    	        	  case 3:
-    	        		  profil.setText(line);
-    	        	    break;
-    	        	  case 4:
-    	        		  latitude.setText(line);
-    	        	    break;
-    	        	  case 5:
-    	        		  longitude.setText(line);
-    	        	    break;
-    	        	  case 6:
-    	        		  DatePrel.setValue(LOCAL_DATE(line));
-    	        	    break;
+
+    	        	  case 0: auteur.setText(line); break;
+
+    	        	  case 1:echantillon.setText(line);break;
+
+    	        	  case 2:distance.setText(line);break;
+
+    	        	  case 3:profil.setText(line); break;
+
+    	        	  case 4:latitude.setText(line);break;
+
+    	        	  case 5:longitude.setText(line);break;
+
+    	        	  case 6:DatePrel.setValue(LOCAL_DATE(line));break;
+
     	        	}
 
     	        	l++;
+
     	        }
     	    } catch (IOException e) {
     	        e.printStackTrace();
@@ -563,28 +575,26 @@ public class SampleController implements Initializable{
 	        double Q50Min = 0;
 	        double Q50Max = 0;
 
-	    	  for (int i=0 ; i < X.size() ;  i++) {
+	    	for (int i=0 ; i < X.size() ;  i++) {
 
-
-
-	              if(    Y.get(i) < 51. && Y.get(i) >= 50. ){
+	              if(   Y.get(i) < 51. && Y.get(i) >= 50. ){
 	              	return X.get(i);
-
 	              }
-	              else if(Y.get(i) < 50.){
+
+	              else if( Y.get(i) < 50. ){
 	            	  Q50Min = Math.max(X.get(i),Q50Min );
-
 	              }
+
 	              else {
 	            	  Q50Max = X.get(i) ;
-		                 break;
-	              }}
+		              break;
+	              }
+	              }
 
-	    	  if(Q50Min == 0 || Q50Max == 0)
+	    	  if( Q50Min == 0 || Q50Max == 0 )
 	          	  return 0;
 
 	          mediane = (Q50Min + Q50Max )/2;
-
 
 	    	return mediane ;
 	    }
@@ -598,25 +608,26 @@ public class SampleController implements Initializable{
 
 	          if(    Y.get(i) < 26. && Y.get(i) >= 25. ){
 	              	return X.get(i);
-
 	              }
+
 	              else if(Y.get(i) < 25.){
 	            	  Q25Min = Math.max(X.get(i),Q25Min );
-
 	              }
+
 	              else {
 	            	  Q25Max = X.get(i) ;
-		                 break;
-	              }}
+		              break;
+	              }
+	          }
 
 	        if(Q25Min == 0 || Q25Max == 0)
 	          	  return 0;
 
-	         quartile = (Q25Min + Q25Max )/2;
-
+	        quartile = (Q25Min + Q25Max )/2;
 
 	    	return quartile ;
 	    }
+
 	    public static  double getQuartileSup(List<Double> X ,  List<Double> Y ){
 
 	    	double quartile = 0 ;
@@ -627,15 +638,15 @@ public class SampleController implements Initializable{
 
 	          if(    Y.get(i) < 76. && Y.get(i) >= 75. ){
 	              	return X.get(i);
-
 	              }
+
 	              else if(Y.get(i) < 75.){
 	            	  Q75Min = Math.max(X.get(i),Q75Min );
-
 	              }
+
 	              else {
 	            	  Q75Max = X.get(i) ;
-		                 break;
+		              break;
 	              }
 	        }
 
@@ -644,10 +655,9 @@ public class SampleController implements Initializable{
 
 	        quartile = (Q75Min + Q75Max )/2;
 
-
-
 	    	return quartile ;
 	    }
+
 	    private WritableImage chartsToImages(Chart chart) {
 
 	        SnapshotParameters snapshotParameters = new SnapshotParameters();
@@ -657,11 +667,13 @@ public class SampleController implements Initializable{
 	    }
 
 	    public static Node fitToParent(Node chart2) {
+
 	        AnchorPane.setTopAnchor(chart2, 0.0);
 	        AnchorPane.setBottomAnchor(chart2, 0.0);
 	        AnchorPane.setLeftAnchor(chart2, 0.0);
 	        AnchorPane.setRightAnchor(chart2, 0.0);
 	        return chart2;
+
 	    }
 
 
@@ -732,10 +744,9 @@ public class SampleController implements Initializable{
 	    }
 
 	    public void CreerText(String nom) throws IOException {
-	    	FileWriter fw = new FileWriter(nom);
+
+	    	   FileWriter fw = new FileWriter(nom);
 	    	   BufferedWriter bw = new BufferedWriter(fw);
-
-
 
 	    	   bw.write("Auteur: " + auteur.getText());
 	    	   bw.newLine();
@@ -768,7 +779,6 @@ public class SampleController implements Initializable{
 
 	    	   bw.flush();
 	    	   bw.close();
-
 
 	    }
 	    @Override

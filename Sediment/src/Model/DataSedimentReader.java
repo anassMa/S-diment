@@ -18,21 +18,27 @@ import org.apache.commons.lang3.StringUtils;
 
 public class DataSedimentReader {
 
-    List<String> data ;
-    Double poidsTotal;
+    List<String> data ; // data est une liste contient les données de fichier .dat
+    Double poidsTotal; // poidsTotal est le poids total de l'échantillon
     String message ;
 
     public DataSedimentReader(String fileName) throws IOException {
         this.data=readInListe(fileName);
     }
+
+    // le méthode readInListe lire le fichier .dat et le stocker dans une liste de type String
     private  List<String> readInListe(String fileName) throws IOException {
-        List<String> result;
-        try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+
+    	List<String> result;
+
+    	try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
             result = lines.collect(Collectors.toList());
         }
 
-        result.removeIf(StringUtils::isBlank);
+        result.removeIf(StringUtils::isBlank); //éliminer tous les lignes vides ou null
+
         result.replaceAll(n -> n.trim());
+
         return result;
 
     }
@@ -45,8 +51,11 @@ public class DataSedimentReader {
         sed.setMySediment(this.stockerDataToMap(this.data)); // stocker la somme de chaque sediment par instant
 
         Set listKeys=this.stockerDataToMap(this.data).keySet();  // Obtenir la liste des clés
+
 		Iterator iterateur=listKeys.iterator();
+
 		// Parcourir les clés et afficher les entrées de chaque clé;
+
 		while(iterateur.hasNext())
 		{
 			Object key= iterateur.next();
@@ -58,15 +67,31 @@ public class DataSedimentReader {
 
         sed.setNbInstants(sed.mySediment.keySet().size());
 
-        System.out.println(sed.mySediment.keySet().size());
+        System.out.println("NbInstants == "+sed.mySediment.keySet().size());
 
         sed.setFrequencesPonderales( this.calculFrequencesPonderales( sed.mySediment ,  sed.poidsTotal) );
+
+        System.out.println("FrequencesPonderales : ");
+
         this.afficher(sed.getFrequencesPonderales());
+
         sed.setFrequencesPonderalesCumule( this.calculFreqPondCumule(sed.getFrequencesPonderales()) );
+
+        System.out.println("FrequencesPonderalesCumule : ");
+
         this.afficher(sed.getFrequencesPonderalesCumule());
+
         sed.setVitesse(this.calculVitesse ( sed.mySediment ));
 
+        System.out.println("Vitesse : ");
+
+        this.afficher(sed.getVitesse());
+
         sed.setDiametre(this.calculDiametre(sed.getVitesse()));
+
+        System.out.println("Diametre : ");
+
+        this.afficher(sed.getDiametre());
 
         return sed;
 
@@ -76,12 +101,15 @@ public class DataSedimentReader {
 
         boolean  ligne = false;
 
-
         if(this.data.isEmpty()){
+
             this.message="Le fichier est vide ";
+
             return false ;
         }
+
         else {
+
             ligne = Pattern.matches("\\d+(.(\\d+)*)*",this.data.get(0) ) ;
 
             if(!ligne){
@@ -102,9 +130,12 @@ public class DataSedimentReader {
 
         return ligne ;
     }
+
     public List<String> NettoyerData (List<String> ensemble){
+
         List<String> result = new ArrayList<>();
         result.add(ensemble.get(0));
+
         int indiceNeg = 0 ;
         boolean v = false ;
         String[] t , t1;
@@ -112,18 +143,24 @@ public class DataSedimentReader {
         Double masseCurrent ;
         String instantTime = null , instantTime1 ;
 
-        for (int i = ensemble.size()-1; i >=0; i--) {
+        for (int i = ensemble.size()-1 ; i >0 ; i--) {
+
         	 t = ensemble.get(i).split("\\s+");
+
         	 masseCurrent = Double.parseDouble(t[1]);
+
         	 instantTime = t[3] ;
+
         	 if(masseCurrent < 0){
+
         		 indiceNeg = i ;
         		 v=true;
         		 break ;
         	 }}
 
             if(v){
-        	for (int i = indiceNeg ; i < ensemble.size(); i++) {
+
+            	for (int i = indiceNeg ; i < ensemble.size(); i++) {
 
         		t1 = ensemble.get(i).split("\\s+");
         		instantTime1 = t1[3];
@@ -145,7 +182,7 @@ public class DataSedimentReader {
 
     public Map<Integer, Double> stockerDataToMap(List<String> ensemble) {
 
-    	ensemble = NettoyerData ( ensemble);
+       	ensemble = NettoyerData ( ensemble);
         Map<Integer, Double> myData = new HashMap<Integer, Double>();
 
         Double somme = 0.0;
@@ -158,56 +195,63 @@ public class DataSedimentReader {
         String[] t1;
         String[] time1;
 
-        String[] t = ensemble.get(1).split("\\s+");
+        if( ensemble.size()>1 ){
 
-        String[] time = t[3].split(":");
+        	String[] t = ensemble.get(1).split("\\s+");
 
-        instantCurrent = Integer.parseInt(time[2]);
-        masseCurrent = Double.parseDouble(t[1]);
+	        String[] time = t[3].split(":");
 
-        somme += masseCurrent;
-        this.poidsTotal=somme;
+	        instantCurrent = Integer.parseInt(time[2]);
+	        masseCurrent = Double.parseDouble(t[1]);
 
-        for (int i = 2; i < ensemble.size(); i++) {
+	        somme += masseCurrent;
+	        this.poidsTotal=somme;
 
-            t1 = ensemble.get(i).split("\\s+");
+	        for (int i = 2; i < ensemble.size(); i++) {
 
-            time1 = t1[3].split(":");
+	            t1 = ensemble.get(i).split("\\s+");
 
-            instant = (Integer.parseInt(time1[2]));
-            masse = Double.parseDouble(t1[1]);
+	            time1 = t1[3].split(":");
 
-            this.poidsTotal +=masse;
+	            instant = (Integer.parseInt(time1[2]));
+	            masse = Double.parseDouble(t1[1]);
 
-            heure = (instantCurrent == 59 && instant == 0) ? heure + 1 : heure;
+	            this.poidsTotal +=masse;
 
-            if (instantCurrent.equals(instant + (60 * heure))) {
+	            heure = (instantCurrent == 59 && instant == 0) ? heure + 1 : heure;
 
-                somme += masse;
+	            if (instantCurrent.equals(instant + (60 * heure))) {
 
-                if (i == ensemble.size() - 1) {
+	                somme += masse;
 
-                    myData.put(instantCurrent, somme);
+	                if (i == ensemble.size() - 1) {
 
-                }
+	                    myData.put(instantCurrent, somme);
 
-            } else {
-                if (i == ensemble.size() - 1) {
+	                }
 
-                    myData.put(instantCurrent, somme);
+	            } else {
+	                if (i == ensemble.size() - 1) {
 
-                    myData.put((60 * heure) + instant, masse);
+	                    myData.put(instantCurrent, somme);
 
-                } else {
+	                    myData.put((60 * heure) + instant, masse);
 
-                    myData.put(instantCurrent, somme);
-                    somme = masse;
-                    instantCurrent = (60 * heure) + instant;
-                }
-            }
-        }
-        Map<Integer,Double> sortedData = new TreeMap<Integer,Double>(myData);
-        return sortedData;
+	                } else {
+
+	                    myData.put(instantCurrent, somme);
+	                    somme = masse;
+	                    instantCurrent = (60 * heure) + instant;
+	                }
+	            }
+	        }
+
+	        Map<Integer,Double> sortedData = new TreeMap<Integer,Double>(myData);
+	        return sortedData;
+
+	        }
+        else return myData;
+
     }
 
     public Double geTotalPoids() {
@@ -215,67 +259,94 @@ public class DataSedimentReader {
     }
 
     public List<Double> calculFrequencesPonderales( Map<Integer,Double> mySediment , Double poidstotal)	{
-          List<Double> res = new ArrayList<>();
+
+    	  List<Double> res = new ArrayList<>();
           Double current ;
+
+          if(poidstotal != null){
+
           Set<Integer> listKeys = mySediment.keySet();
           Iterator<Integer> iterateur=listKeys.iterator();
+
           while(iterateur.hasNext())
             {
                 Object key= iterateur.next();
                 current = (mySediment.get(key)/ poidstotal)*100;
                 res.add(current);
-            }
+            }}
+
           return res ;
 
       }
 
     public List<Double> calculVitesse ( Map<Integer,Double> mySediment ) {
-        List<Double> res = new ArrayList<>();
+
+      List<Double> res = new ArrayList<>();
       Double actualValeur ;
+
       Iterator<Map.Entry<Integer,Double >> iterator = mySediment.entrySet().iterator();
+
       while (iterator.hasNext()) {
+
               Map.Entry<Integer,Double> entry = iterator.next();
               actualValeur =    (  Configuration.getLongueur() / entry.getKey());
               res.add(actualValeur);
+
           }
+
           return res ;
 }
 
     public List<Double> calculFreqPondCumule (List<Double> FrequencesPonderales ){
 
           List<Double> res = new ArrayList<>();
+
+          if(! FrequencesPonderales.isEmpty()){
           Double actualValeur  = FrequencesPonderales.get(0);
           res.add(actualValeur);
+
           for(int i=1 ; i < FrequencesPonderales.size() ; i++ ) {
-              actualValeur += FrequencesPonderales.get(i);
+
+        	  actualValeur += FrequencesPonderales.get(i);
               res.add(actualValeur);
-          }
+
+          }}
 
           return res ;
       }
 
      public List<Double> calculDiametre ( List<Double> vitesse  ){
-          List<Double> res = new ArrayList<>();
+
+    	  List<Double> res = new ArrayList<>();
           Double actualValeur ;
+
            for(int i=0 ; i < vitesse.size() ; i++){
+
                    actualValeur = Configuration.getA0()+(Configuration.getA1()*vitesse.get(i))+(Configuration.getA2()*Configuration.getTemperature()) ;
                     res.add(Math.pow(10, actualValeur));
+
                }
 
           return res ;
      }
-    public void afficher(List<?> res) {
-        for(int i=0 ; i < res.size() ; i++ ) {
-            System.out.println(" "+res.get(i));
-        }
-    }
 
-    public String getMessage() {
-        return message;
-    }
-    public void setMessage(String message) {
-        this.message = message;
-    }
+	   public void afficher(List<?> res) {
+
+		   for(int i=0 ; i < res.size() ; i++ ) {
+
+			   System.out.println(" "+res.get(i));
+
+	        }
+
+	    }
+
+	    public String getMessage() {
+	        return message;
+	    }
+
+	    public void setMessage(String message) {
+	        this.message = message;
+	    }
 
 
 }
