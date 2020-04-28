@@ -19,6 +19,21 @@
    <center>
       <TabPane prefHeight="650.0" prefWidth="790.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
+            <Tab text="Configuration">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="88.0" layoutY="104.0" prefHeight="80.0" prefWidth="166.0" text="Répertoire de travail :">
+                           <font>
+                              <Font size="17.0" />
+                           </font>
+                        </Label>
+                        <TextArea fx:id="RepTravail" layoutX="266.0" layoutY="125.0" prefHeight="38.0" prefWidth="324.0" />
+                        <Button layoutX="217.0" layoutY="248.0" mnemonicParsing="false" onAction="#changer" prefHeight="25.0" prefWidth="99.0" text="Changer" />
+                     </children>
+                  </AnchorPane>
+              </content>
+            </Tab>
             <Tab text="Méta-données">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -65,7 +80,7 @@
                   </AnchorPane>
               </content>
             </Tab>
-          <Tab text="Configuration">
+          <Tab text="Expérience">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="351.0" prefWidth="600.0">
                      <children>

@@ -107,6 +107,9 @@ public class SampleController implements Initializable{
 	     private Label  quartileInf ;
 	    @FXML
 	     private Label qSup;
+	    @FXML
+	    private TextArea RepTravail;
+
 
 	    private LineChart<Number,Number> chart;
 
@@ -124,12 +127,32 @@ public class SampleController implements Initializable{
 
 	    String pwd = System.getProperty("user.dir");
 
+	    String cheminRepTravail = pwd ;
+
+
+
+
+	    @FXML
+	    private void changer(ActionEvent event){
+	    	 File file = new File(RepTravail.getText());
+	    	        if (!RepTravail.getText().equals(pwd)){
+
+	    	            	new File("RepTravail.getText()/result").mkdir( );
+		    	        	new File("RepTravail.getText()/data").mkdir( );
+		    	        	new File("RepTravail.getText()/metadata").mkdir( );
+
+		    	        	 Alert alert1 = new Alert(AlertType.INFORMATION);
+		    		  	      alert1.setTitle("Information");
+		    		  	      alert1.setHeaderText(null);
+		    		       	alert1.setContentText("Le Repertoire de travail était bien changé  !");
+
+	    	    }}
 
 	    @FXML
 	    private void Choisir(ActionEvent event) {
 
 	       FileChooser fc = new FileChooser();
-	       File chemin = new File(pwd);
+	       File chemin = new File(RepTravail.getText());
 	       fc.setInitialDirectory(chemin);
 
 	       if (firstPath != null) {
@@ -159,7 +182,7 @@ public class SampleController implements Initializable{
 	    private void charger(ActionEvent event) throws IOException {
 
 	    	   FileChooser fc = new FileChooser();
-		       File chemin = new File(pwd);
+		       File chemin = new File(RepTravail.getText());
 		       fc.setInitialDirectory(chemin);
 
 		       if (firstPath1 != null) {
@@ -242,7 +265,7 @@ public class SampleController implements Initializable{
 
                 	     else {
                 	    	  FileChooser fc = new FileChooser();
-                        	  File chemin = new File(pwd);
+                        	  File chemin = new File(RepTravail.getText());
                		          fc.setInitialDirectory(chemin);
                		          if (firstPath2 != null) {
                		           File path = new File(firstPath2);
@@ -521,7 +544,7 @@ public class SampleController implements Initializable{
 	    @FXML
 	    private void generer(ActionEvent event) throws IOException, DocumentException{
 
-	    	String FILE = pwd+"/result/RapportDe"+nameFile+".txt";
+	    	String FILE = RepTravail.getText()+"/result/RapportDe"+nameFile+".txt";
 
 	    	CreerText(FILE);
 
@@ -783,7 +806,9 @@ public class SampleController implements Initializable{
 	    }
 	    @Override
 	    public void initialize(URL url, ResourceBundle rb) {
-	        // TODO
+	    	RepTravail.clear();
+	    	RepTravail.setText(cheminRepTravail);
+
 	    }
 
 
