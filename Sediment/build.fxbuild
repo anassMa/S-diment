@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ASCII"?>
 <anttasks:AntTask xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:anttasks="http://org.eclipse.fx.ide.jdt/1.0" buildDirectory="${project}/build">
   <deploy packagingFormat="exe">
-    <application name="Sediment" mainclass="application.Main" version="1.0"/>
+    <application name="Sediment" mainclass="" version="1.0"/>
     <info title="Granulometrie" vendor="Anass"/>
   </deploy>
   <signjar/>

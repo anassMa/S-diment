@@ -134,25 +134,22 @@ public class SampleController implements Initializable{
 
 	    @FXML
 	    private void changer(ActionEvent event){
-	    	 File file = new File(RepTravail.getText());
-	    	        if (!RepTravail.getText().equals(pwd)){
 
-	    	            	new File("RepTravail.getText()/result").mkdir( );
-		    	        	new File("RepTravail.getText()/data").mkdir( );
-		    	        	new File("RepTravail.getText()/metadata").mkdir( );
+	    	    cheminRepTravail=RepTravail.getText();
 
-		    	        	 Alert alert1 = new Alert(AlertType.INFORMATION);
-		    		  	      alert1.setTitle("Information");
-		    		  	      alert1.setHeaderText(null);
-		    		       	alert1.setContentText("Le Repertoire de travail était bien changé  !");
+	    	    Alert alert = new Alert(AlertType.INFORMATION);
+	  	    	alert.setTitle("Information");
+	  	    	alert.setHeaderText(null);
+	  	    	alert.setContentText("Le chemin de travail courant  est  : "+cheminRepTravail);
+	  	    	alert.showAndWait();
 
-	    	    }}
+	    	    }
 
 	    @FXML
 	    private void Choisir(ActionEvent event) {
 
 	       FileChooser fc = new FileChooser();
-	       File chemin = new File(RepTravail.getText());
+	       File chemin = new File(cheminRepTravail);
 	       fc.setInitialDirectory(chemin);
 
 	       if (firstPath != null) {
@@ -182,7 +179,7 @@ public class SampleController implements Initializable{
 	    private void charger(ActionEvent event) throws IOException {
 
 	    	   FileChooser fc = new FileChooser();
-		       File chemin = new File(RepTravail.getText());
+		       File chemin = new File(cheminRepTravail);
 		       fc.setInitialDirectory(chemin);
 
 		       if (firstPath1 != null) {
@@ -216,7 +213,7 @@ public class SampleController implements Initializable{
                 }
 
 		        else{
-		        lire(ch.getText());
+		        	lire(ch.getText());
 		        }
 
 		        }
@@ -265,7 +262,7 @@ public class SampleController implements Initializable{
 
                 	     else {
                 	    	  FileChooser fc = new FileChooser();
-                        	  File chemin = new File(RepTravail.getText());
+                        	  File chemin = new File(cheminRepTravail);
                		          fc.setInitialDirectory(chemin);
                		          if (firstPath2 != null) {
                		           File path = new File(firstPath2);
@@ -481,7 +478,7 @@ public class SampleController implements Initializable{
 	            // deplacemment de l'image vers le dossier result
 	             Files.move
 	                        (Paths.get(file.getAbsolutePath()),
-	                        Paths.get(pwd+"/result/"+"courbe"+nameFile+".png"));
+	                        Paths.get(cheminRepTravail+"/result/"+"courbe"+nameFile+".png"));
 	            }
 
 
@@ -544,7 +541,7 @@ public class SampleController implements Initializable{
 	    @FXML
 	    private void generer(ActionEvent event) throws IOException, DocumentException{
 
-	    	String FILE = RepTravail.getText()+"/result/RapportDe"+nameFile+".txt";
+	    	String FILE = cheminRepTravail+"/result/RapportDe"+nameFile+".txt";
 
 	    	CreerText(FILE);
 
